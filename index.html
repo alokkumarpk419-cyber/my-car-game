@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>BMW Turbo Racing 3D</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Screen 1: Car Selection Menu -->
+  <div id="selection-screen">
+    <h1>🏎️ CAR SELECTION 🏎️</h1>
+    <div id="car-preview">
+      <div id="preview-box"></div>
+      <h2 id="car-name">BMW M4 Competition</h2>
+      <p id="car-stats">Top Speed: Fast | Color: Blue</p>
+    </div>
+    
+    <div id="menu-buttons">
+      <button onclick="prevCar()">⬅️ Previous</button>
+      <button id="start-btn" onclick="startGame()">PLAY GAME 🚀</button>
+      <button onclick="nextCar()">Next ➡️</button>
+    </div>
+  </div>
+
+  <!-- Screen 2: Gameplay Canvas -->
+  <div id="game-screen" class="hidden">
+    <div id="hud">
+      <div id="score-text">SCORE: 0</div>
+      <div id="speed-text">SPEED: 100 KM/H</div>
+    </div>
+    
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- Mobile Touch Controls -->
+    <div id="touch-controls">
+      <button id="left-btn">👈 LEFT</button>
+      <button id="right-btn">RIGHT 👉</button>
+    </div>
+  </div>
+
+  <!-- Screen 3: Game Over Popup -->
+  <div id="game-over-screen" class="hidden">
+    <h2>💥 GAME OVER 💥</h2>
+    <p id="final-score">Final Score: 0</p>
+    <button onclick="restartGame()">RESTART 🔄</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
