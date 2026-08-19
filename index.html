@@ -1,52 +1,239 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>BMW Turbo Racing 3D</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>Turbo Coin Racer</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;font-family:Arial,sans-serif;background:#55a630}
+body{touch-action:none}
+#gameArea{position:relative;width:min(420px,100vw);height:100vh;margin:auto;background:#343434;overflow:hidden;border-left:8px solid #fff;border-right:8px solid #fff}
+.roadLine{position:absolute;width:10px;height:105px;background:#fff;left:50%;transform:translateX(-50%);border-radius:5px;opacity:.95}
+.sideTree{position:absolute;z-index:2;font-size:42px;filter:drop-shadow(0 4px 3px #0008);pointer-events:none}
+.left{left:8px}.right{right:8px}
+#hud{position:absolute;z-index:20;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;gap:8px}
+.badge{background:#111d;color:#fff;padding:9px 12px;border-radius:12px;font-weight:bold;border:1px solid #ffffff55}
+#menu,#garage,#gameOver{position:absolute;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;background:linear-gradient(#000b,#000d);padding:18px}
+.panel{width:min(370px,94%);background:#151515;border:2px solid #fff3;border-radius:22px;padding:22px;text-align:center;color:#fff;box-shadow:0 15px 50px #000}
+h1{font-size:30px;color:#ffd21c;text-shadow:0 0 12px #ff9d00}
+.sub{color:#bbb;margin:8px 0 18px}
+.mainBtn,.carBtn{border:0;border-radius:14px;padding:13px 20px;font-size:18px;font-weight:bold;cursor:pointer}
+.mainBtn{background:#ffd21c;color:#171717;box-shadow:0 5px 0 #9e7400}
+.mainBtn:active,.carBtn:active{transform:translateY(3px);box-shadow:none}
+#garage{display:none}
+.carGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:14px 0}
+.carBtn{background:#252525;color:#fff;border:1px solid #555;box-shadow:none}
+.carBtn.locked{opacity:.55}
+.carPreview{height:55px;position:relative;margin:auto;width:42px}
+.miniCar{position:absolute;inset:4px 5px;background:var(--c);border-radius:10px;border:2px solid #111}
+.miniCar:before,.miniCar:after{content:"";position:absolute;width:9px;height:18px;background:#111;border-radius:4px;top:18px}
+.miniCar:before{left:-6px}.miniCar:after{right:-6px}
+#player{position:absolute;width:58px;height:92px;bottom:105px;left:50%;transform:translateX(-50%);z-index:10;transition:left .08s}
+.carBody{position:absolute;inset:5px 9px;border-radius:14px 14px 10px 10px;background:var(--car,#e22);border:3px solid #111;box-shadow:0 7px 12px #0008}
+.carBody:before{content:"";position:absolute;left:9px;right:9px;top:12px;height:27px;border-radius:9px;background:linear-gradient(135deg,#bfeeff,#34556b);border:2px solid #111}
+.carBody:after{content:"";position:absolute;left:13px;right:13px;bottom:13px;height:15px;border-radius:5px;background:#ffdd33;box-shadow:0 -34px 0 #ff3838}
+.wheel{position:absolute;width:13px;height:27px;background:#111;border-radius:5px;top:18px;z-index:-1}
+.w1{left:0}.w2{right:0}.w3{left:0;bottom:14px;top:auto}.w4{right:0;bottom:14px;top:auto}
+#coinLayer,#enemyLayer{position:absolute;inset:0;z-index:8}
+.coin{position:absolute;width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff49a 0 10%,#ffd21c 11% 45%,#d58a00 46% 100%);border:3px solid #fff09b;box-shadow:0 0 14px #ffd21c;display:flex;align-items:center;justify-content:center;color:#9a6200;font-weight:bold}
+.enemy{position:absolute;width:55px;height:88px;border-radius:13px;background:var(--ec,#1976ff);border:3px solid #111;box-shadow:0 6px 10px #0008}
+.enemy:before{content:"";position:absolute;left:9px;right:9px;top:11px;height:25px;background:#83d8ff;border-radius:8px}
+.enemy:after{content:"";position:absolute;left:10px;right:10px;bottom:11px;height:12px;background:#ffdf29;border-radius:4px;box-shadow:0 -35px 0 #ff3535}
+.control{position:absolute;z-index:50;bottom:55px;width:64px;height:64px;border:2px solid #fff8;border-radius:50%;background:#111c;color:#fff;font-size:28px;font-weight:bold}
+#leftBtn{left:22px}#rightBtn{right:22px}
+#speedBtn{left:50%;transform:translateX(-50%);width:78px;height:78px;background:#ff7b00;border-color:#ffd28a;font-size:16px;box-shadow:0 0 20px #ff7b0088}
+#speedBtn.active{background:#e60000;box-shadow:0 0 25px #ff2020}
+#startPlay{margin-top:4px}
+#gameOver{display:none}
+.small{font-size:13px;color:#aaa;margin-top:12px}
+</style>
 </head>
 <body>
 
-  <!-- Screen 1: Car Selection Menu -->
-  <div id="selection-screen">
-    <h1>🏎️ CAR SELECTION 🏎️</h1>
-    <div id="car-preview">
-      <div id="preview-box"></div>
-      <h2 id="car-name">BMW M4 Competition</h2>
-      <p id="car-stats">Top Speed: Fast | Color: Blue</p>
-    </div>
-    
-    <div id="menu-buttons">
-      <button onclick="prevCar()">⬅️ Previous</button>
-      <button id="start-btn" onclick="startGame()">PLAY GAME 🚀</button>
-      <button onclick="nextCar()">Next ➡️</button>
+<div id="gameArea">
+  <div class="sideTree left" style="top:8%">🌳</div>
+  <div class="sideTree right" style="top:17%">🌲</div>
+  <div class="sideTree left" style="top:38%">🌲</div>
+  <div class="sideTree right" style="top:49%">🌳</div>
+  <div class="sideTree left" style="top:69%">🌳</div>
+  <div class="sideTree right" style="top:79%">🌲</div>
+
+  <div id="hud">
+    <div class="badge">🏆 <span id="score">0</span></div>
+    <div class="badge">🪙 <span id="coins">0</span></div>
+  </div>
+
+  <div id="player" style="--car:#e22">
+    <div class="wheel w1"></div><div class="wheel w2"></div>
+    <div class="wheel w3"></div><div class="wheel w4"></div>
+    <div class="carBody"></div>
+  </div>
+
+  <div id="coinLayer"></div>
+  <div id="enemyLayer"></div>
+
+  <button class="control" id="leftBtn">◀</button>
+  <button class="control" id="speedBtn">⚡<br>SPEED</button>
+  <button class="control" id="rightBtn">▶</button>
+
+  <div id="menu">
+    <div class="panel">
+      <h1>🏎️ TURBO COIN RACER</h1>
+      <p class="sub">Collect coins • Unlock cars • Go TURBO!</p>
+      <button class="mainBtn" id="startPlay">▶ PLAY</button>
+      <button class="mainBtn" id="openGarage" style="margin-left:6px;background:#38d46a">🚗 CARS</button>
+      <div class="small">Use ◀ ▶ to steer. Tap SPEED for turbo.</div>
     </div>
   </div>
 
-  <!-- Screen 2: Gameplay Canvas -->
-  <div id="game-screen" class="hidden">
-    <div id="hud">
-      <div id="score-text">SCORE: 0</div>
-      <div id="speed-text">SPEED: 100 KM/H</div>
-    </div>
-    
-    <canvas id="gameCanvas"></canvas>
-
-    <!-- Mobile Touch Controls -->
-    <div id="touch-controls">
-      <button id="left-btn">👈 LEFT</button>
-      <button id="right-btn">RIGHT 👉</button>
+  <div id="garage">
+    <div class="panel">
+      <h1>🚗 CAR GARAGE</h1>
+      <p class="sub">Your coins: 🪙 <b id="garageCoins">0</b></p>
+      <div class="carGrid" id="carGrid"></div>
+      <button class="mainBtn" id="closeGarage">BACK</button>
     </div>
   </div>
 
-  <!-- Screen 3: Game Over Popup -->
-  <div id="game-over-screen" class="hidden">
-    <h2>💥 GAME OVER 💥</h2>
-    <p id="final-score">Final Score: 0</p>
-    <button onclick="restartGame()">RESTART 🔄</button>
+  <div id="gameOver">
+    <div class="panel">
+      <h1>💥 GAME OVER</h1>
+      <p class="sub">Score: <b id="finalScore">0</b> • Coins: <b id="finalCoins">0</b></p>
+      <button class="mainBtn" id="restart">🔄 PLAY AGAIN</button>
+      <button class="mainBtn" id="homeBtn" style="margin-left:6px;background:#555;color:#fff">HOME</button>
+    </div>
   </div>
+</div>
 
-  <script src="script.js"></script>
+<script>
+const gameArea=document.getElementById("gameArea"),player=document.getElementById("player");
+const scoreEl=document.getElementById("score"),coinsEl=document.getElementById("coins");
+const menu=document.getElementById("menu"),garage=document.getElementById("garage"),gameOver=document.getElementById("gameOver");
+let score=0,coins=Number(localStorage.getItem("coins")||0),running=false,turbo=false;
+let playerX=0, roadW=0, speed=5, objects=[], lastSpawn=0, raf=0;
+const cars=[
+ {name:"Red Racer",cost:0,color:"#e22"},
+ {name:"Blue Flash",cost:25,color:"#1677ff"},
+ {name:"Green Beast",cost:60,color:"#20b84b"},
+ {name:"Gold King",cost:120,color:"#ffb300"},
+ {name:"Purple Turbo",cost:200,color:"#a63cff"},
+ {name:"Neon Rocket",cost:350,color:"#00d9ff"}
+];
+let selected=Number(localStorage.getItem("selectedCar")||0);
+let unlocked=JSON.parse(localStorage.getItem("unlockedCars")||"[0]");
+
+function updateCoins(){coinsEl.textContent=coins;document.getElementById("garageCoins").textContent=coins;localStorage.setItem("coins",coins)}
+function setCar(i){selected=i;player.style.setProperty("--car",cars[i].color);localStorage.setItem("selectedCar",i)}
+function renderGarage(){
+ const grid=document.getElementById("carGrid");grid.innerHTML="";
+ cars.forEach((c,i)=>{
+   const b=document.createElement("button");b.className="carBtn "+(!unlocked.includes(i)?"locked":"");
+   b.innerHTML=`<div class="carPreview" style="--c:${c.color}"><div class="miniCar"></div></div>
+   ${c.name}<br><small>${unlocked.includes(i)?(selected===i?"✓ SELECTED":"SELECT"):"🔒 "+c.cost+" COINS"}</small>`;
+   b.onclick=()=>{
+     if(unlocked.includes(i)){setCar(i);renderGarage();return}
+     if(coins>=c.cost){coins-=c.cost;unlocked.push(i);localStorage.setItem("unlockedCars",JSON.stringify(unlocked));updateCoins();setCar(i);renderGarage();playTone(880,.12)}
+     else playTone(160,.18,"square");
+   };
+   grid.appendChild(b);
+ });
+}
+updateCoins();setCar(selected);renderGarage();
+
+let audioCtx;
+function audio(){
+ if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+ if(audioCtx.state==="suspended")audioCtx.resume();
+}
+function playTone(freq,dur=.1,type="sine"){
+ try{audio();let o=audioCtx.createOscillator(),g=audioCtx.createGain();
+ o.type=type;o.frequency.value=freq;g.gain.setValueAtTime(.22,audioCtx.currentTime);
+ g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+dur);o.connect(g);g.connect(audioCtx.destination);
+ o.start();o.stop(audioCtx.currentTime+dur)}catch(e){}
+}
+function coinSound(){playTone(900,.08);setTimeout(()=>playTone(1350,.12),55)}
+function engineSound(){playTone(turbo?95:65,.08,"sawtooth")}
+
+function roadLines(){
+ document.querySelectorAll(".roadLine").forEach(x=>x.remove());
+ for(let i=0;i<6;i++){let d=document.createElement("div");d.className="roadLine";d.style.top=(i*145-100)+"px";gameArea.appendChild(d)}
+}
+function resetObjects(){objects.forEach(o=>o.el.remove());objects=[]}
+function spawn(type){
+ let el=document.createElement("div");el.className=type;
+ let x=20+Math.random()*(gameArea.clientWidth-100);
+ el.style.left=x+"px";el.style.top="-100px";
+ (type==="coin"?document.getElementById("coinLayer"):document.getElementById("enemyLayer")).appendChild(el);
+ objects.push({el,type,x,y:-100});
+}
+function startGame(){
+ audio();menu.style.display="none";garage.style.display="none";gameOver.style.display="none";
+ score=0;scoreEl.textContent=0;resetObjects();roadLines();running=true;turbo=false;
+ playerX=(gameArea.clientWidth-58)/2;player.style.left=playerX+"px";lastSpawn=performance.now();
+ cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);engineSound();
+}
+function endGame(){
+ running=false;turbo=false;document.getElementById("finalScore").textContent=score;
+ document.getElementById("finalCoins").textContent=coins;gameOver.style.display="flex";
+ playTone(75,.5,"square");
+}
+function move(dir){
+ if(!running)return;
+ playerX+=dir*28;playerX=Math.max(8,Math.min(gameArea.clientWidth-66,playerX));
+ player.style.left=playerX+"px";playTone(170,.05,"sawtooth");
+}
+function hit(a,b){
+ let r1=a.getBoundingClientRect(),r2=b.getBoundingClientRect();
+ return !(r1.right<r2.left||r1.left>r2.right||r1.bottom<r2.top||r1.top>r2.bottom);
+}
+function loop(t){
+ if(!running)return;
+ let dt=Math.min(32,t-(loop.last||t));loop.last=t;
+ let currentSpeed=turbo?15:5;
+ document.querySelectorAll(".roadLine").forEach(l=>{
+   let y=parseFloat(l.style.top)||0;y+=currentSpeed*dt/16;if(y>gameArea.clientHeight)y=-110;l.style.top=y+"px";
+ });
+ if(t-lastSpawn> (turbo?650:950)){spawn(Math.random()<.62?"coin":"enemy");lastSpawn=t}
+ objects.forEach(o=>{
+   o.y+=currentSpeed*dt/16;o.el.style.top=o.y+"px";
+   if(hit(player,o.el)){
+     if(o.type==="coin"){
+       coins++;score+=5;updateCoins();coinSound();o.el.remove();o.dead=true;
+     }else{endGame();o.dead=true}
+   }
+   if(o.y>gameArea.clientHeight+120){o.el.remove();o.dead=true;if(o.type==="enemy"){score+=10;scoreEl.textContent=score}}
+ });
+ objects=objects.filter(o=>!o.dead);
+ scoreEl.textContent=score;
+ if(Math.random()<.025)engineSound();
+ raf=requestAnimationFrame(loop);
+}
+function holdButton(btn,dir){
+ let down=false,timer;
+ const start=e=>{e.preventDefault();audio();move(dir);down=true;timer=setInterval(()=>move(dir),100)};
+ const stop=e=>{e.preventDefault();down=false;clearInterval(timer)};
+ btn.addEventListener("pointerdown",start);btn.addEventListener("pointerup",stop);btn.addEventListener("pointercancel",stop);btn.addEventListener("pointerleave",stop);
+}
+holdButton(document.getElementById("leftBtn"),-1);holdButton(document.getElementById("rightBtn"),1);
+
+document.getElementById("speedBtn").addEventListener("pointerdown",e=>{
+ e.preventDefault();audio();turbo=!turbo;e.currentTarget.classList.toggle("active",turbo);
+ playTone(turbo?420:180,.18,"sawtooth");engineSound();
+});
+document.addEventListener("keydown",e=>{
+ if(e.key==="ArrowLeft")move(-1);if(e.key==="ArrowRight")move(1);
+ if(e.code==="Space"){turbo=true;document.getElementById("speedBtn").classList.add("active")}
+});
+document.addEventListener("keyup",e=>{if(e.code==="Space"){turbo=false;document.getElementById("speedBtn").classList.remove("active")}});
+
+document.getElementById("startPlay").onclick=startGame;
+document.getElementById("restart").onclick=startGame;
+document.getElementById("openGarage").onclick=()=>{menu.style.display="none";garage.style.display="flex";renderGarage()};
+document.getElementById("closeGarage").onclick=()=>{garage.style.display="none";menu.style.display="flex"};
+document.getElementById("homeBtn").onclick=()=>{gameOver.style.display="none";menu.style.display="flex"};
+window.addEventListener("resize",()=>{if(!running)playerX=(gameArea.clientWidth-58)/2});
+roadLines();
+</script>
 </body>
 </html>
